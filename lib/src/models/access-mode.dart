@@ -29,28 +29,29 @@ const int OWNER = 0x80;
 const int INVALID = 0x100000;
 
 /// Bitmask for validating access modes
-const int AccessModePermissionsBITMASK = JOIN | READ | WRITE | PRES | APPROVE | SHARE | DELETE | OWNER;
+const int AccessModePermissionsBITMASK =
+    JOIN | READ | WRITE | PRES | APPROVE | SHARE | DELETE | OWNER;
 
 /// Access control is mostly usable for group topics. Its usability for me and P2P topics is
 /// limited to managing presence notifications and banning uses from initiating or continuing P2P conversations.
 class AccessMode {
   /// Permissions granted to user by topic's manager
-  late int _given;
+  int? _given;
 
   /// User's desired permissions
-  late int _want;
+  int? _want;
 
   /// Combination of want and given
-  late int mode;
+  int? mode;
 
   int operator [](other) {
     switch (other) {
       case 'mode':
-        return mode;
+        return mode ?? 0;
       case 'want':
-        return _want;
+        return _want ?? 0;
       case 'given':
-        return _given;
+        return _given ?? 0;
       default:
         return 0;
     }
@@ -59,7 +60,8 @@ class AccessMode {
   /// Create new instance by passing an `AccessMode` or `Map<String, dynamic>`
   AccessMode(dynamic acs) {
     if (acs != null) {
-      _given = acs['given'] is int ? acs['given'] : AccessMode.decode(acs['given']);
+      _given =
+          acs['given'] is int ? acs['given'] : AccessMode.decode(acs['given']);
       _want = acs['want'] is int ? acs['want'] : AccessMode.decode(acs['want']);
 
       if (acs['mode'] != null) {
@@ -69,7 +71,7 @@ class AccessMode {
           mode = AccessMode.decode(acs['mode']) ?? 0;
         }
       } else {
-        mode = _given & _want;
+        mode = (_given ?? 0) & (_want ?? 0);
       }
     }
   }
@@ -111,8 +113,10 @@ class AccessMode {
   }
 
   /// Decodes integer access mode to string
-  static String? encode(int val) {
-    if (val == INVALID) {
+  static String? encode(int? val) {
+    if (val == null) {
+      return null;
+    } else if (val == INVALID) {
       return null;
     } else if (val == NONE) {
       return 'N';
@@ -130,7 +134,8 @@ class AccessMode {
   }
 
   /// Updates mode with newly given permissions
-  static int update(int val, String upd) {
+  static int update(int? val, String upd) {
+    if (val == null) return 0;
     if (!(upd is String)) {
       return val;
     }
@@ -252,12 +257,12 @@ class AccessMode {
 
   /// What user `want` that is not `given`
   String? getMissing() {
-    return AccessMode.encode(_want & ~_given);
+    return AccessMode.encode((_want ?? 0) & ~(_given ?? 0));
   }
 
   /// What permission is `given` and user does not `want`
   String? getExcessive() {
-    return AccessMode.encode(_given & ~_want);
+    return AccessMode.encode((_given ?? 0) & ~(_want ?? 0));
   }
 
   AccessMode updateAll(AccessMode? val) {
@@ -271,7 +276,7 @@ class AccessMode {
       if (w != null) {
         updateWant(w);
       }
-      mode = _given & _want;
+      mode = (_given ?? 0) & (_want ?? 0);
     }
     return this;
   }
