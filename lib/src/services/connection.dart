@@ -1,13 +1,12 @@
-import 'package:get_it/get_it.dart';
-import 'package:rxdart/rxdart.dart';
 import 'dart:io';
 
+import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:tinode/src/models/connection-options.dart';
 import 'package:tinode/src/services/logger.dart';
 import 'package:tinode/src/services/tools.dart';
-
-import 'package:web_socket_channel/status.dart' as status;
 import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/status.dart' as status;
 
 /// This class is responsible for `ws` connection establishments
 ///
@@ -17,7 +16,7 @@ class ConnectionService {
   final ConnectionOptions _options;
 
   /// Websocket wrapper channel based on `dart:io`
-  late IOWebSocketChannel _channel;
+  IOWebSocketChannel? _channel;
 
   /// Websocket connection
   WebSocket? _ws;
@@ -51,12 +50,13 @@ class ConnectionService {
       _loggerService.warn('Reconnecting...');
     }
     _connecting = true;
-    _ws = await WebSocket.connect(Tools.makeBaseURL(_options)).timeout(Duration(milliseconds: 5000));
+    _ws = await WebSocket.connect(Tools.makeBaseURL(_options))
+        .timeout(Duration(milliseconds: 5000));
     _connecting = false;
     _loggerService.log('Connected.');
     _channel = IOWebSocketChannel(_ws!);
     onOpen.add('Opened');
-    _channel.stream.listen((message) {
+    _channel?.stream.listen((message) {
       onMessage.add(message);
     });
   }
@@ -66,12 +66,12 @@ class ConnectionService {
     if (!isConnected || _connecting) {
       throw Exception('Tried sending data but you are not connected yet.');
     }
-    _channel.sink.add(str);
+    _channel?.sink.add(str);
   }
 
   /// Close current websocket connection
   void disconnect() {
-    _channel = null as IOWebSocketChannel;
+    _channel = null;
     _connecting = false;
     _ws?.close(status.goingAway);
     onDisconnect.add(null);
