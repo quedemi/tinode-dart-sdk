@@ -34,17 +34,17 @@ class ConfigService {
 
   String get platform {
     if (Platform.isAndroid) {
-      return 'Android';
+      return 'android';
     } else if (Platform.isFuchsia) {
-      return 'Fuchsia';
+      return 'fuchsia';
     } else if (Platform.isIOS) {
-      return 'IOS';
+      return 'ios';
     } else if (Platform.isLinux) {
-      return 'Linux';
+      return 'linux';
     } else if (Platform.isMacOS) {
-      return 'MacOS';
+      return 'macos';
     } else if (Platform.isWindows) {
-      return 'Window';
+      return 'windows';
     } else {
       return 'Unknown';
     }
