@@ -1,8 +1,7 @@
 import 'package:get_it/get_it.dart';
-
+import 'package:tinode/src/models/get-query.dart';
 import 'package:tinode/src/models/topic-names.dart' as topic_names;
 import 'package:tinode/src/models/topic-subscription.dart';
-import 'package:tinode/src/models/get-query.dart';
 import 'package:tinode/src/services/logger.dart';
 import 'package:tinode/src/services/tinode.dart';
 import 'package:tinode/src/topic-me.dart';
@@ -48,11 +47,7 @@ class MetaGetBuilder {
 
   /// Add query parameters to fetch messages newer than the latest saved message
   MetaGetBuilder withLaterData(int? limit) {
-    if (topic.maxSeq <= 0) {
-      return this;
-    }
-
-    return withData((topic.maxSeq > 0 ? topic.maxSeq + 1 : null)!, null, limit);
+    return withData(topic.maxSeq > 0 ? topic.maxSeq + 1 : null, null, limit);
   }
 
   /// Add query parameters to fetch messages older than the earliest saved message
@@ -110,7 +105,8 @@ class MetaGetBuilder {
     if (topic.getType() == 'me') {
       what['cred'] = true;
     } else {
-      _loggerService.error('Invalid topic type for MetaGetBuilder:withCreds ' + topic.getType().toString());
+      _loggerService.error('Invalid topic type for MetaGetBuilder:withCreds ' +
+          topic.getType().toString());
     }
     return this;
   }

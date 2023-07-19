@@ -292,10 +292,10 @@ class Topic {
       ctrl = CtrlMessage.fromMessage(response);
     }
     resetSubscription();
-    if (unsubscribe) {
-      _cacheManager.delete('topic', name ?? '');
-      _gone();
-    }
+
+    _cacheManager.delete('topic', name ?? '');
+    _gone();
+
     return ctrl;
   }
 
@@ -1110,10 +1110,11 @@ class Topic {
       ranges.add(prev);
     }, null, null);
 
+    final seq = this.seq ?? 0;
     // Check for missing messages at the end.
     // All messages could be missing or it could be a new topic with no messages.
     var last = _messages.length > 0 ? _messages.getLast() : null;
-    var maxSeq = max(seq!, _maxSeq);
+    var maxSeq = max(seq, _maxSeq);
     if ((maxSeq > 0 && last == null) ||
         (last != null &&
             (((last.hi != null && last.hi! > 0) ? last.hi : last.seq)! <
