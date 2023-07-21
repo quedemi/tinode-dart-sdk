@@ -1,5 +1,5 @@
-import 'package:tinode/src/models/topic-description.dart';
 import 'package:tinode/src/models/access-mode.dart';
+import 'package:tinode/src/models/topic-description.dart';
 
 /// Info on when the peer was last online
 class Seen {
@@ -53,6 +53,8 @@ class TopicSubscription {
   /// Application-defined user's 'private' object.
   dynamic private;
 
+  dynamic trusted;
+
   /// current online status of the user; if this is a
   /// group or a p2p topic, it's user's online status in the topic,
   /// i.e. if the user is attached and listening to messages; if this
@@ -94,6 +96,7 @@ class TopicSubscription {
     this.clear,
     this.public,
     this.private,
+    this.trusted,
     this.online,
     this.topic,
     this.seq,
@@ -118,6 +121,7 @@ class TopicSubscription {
       clear: msg['clear'],
       public: msg['public'],
       private: msg['private'],
+      trusted: msg['trusted'],
       online: msg['online'],
       topic: msg['topic'],
       seq: msg['seq'],
@@ -139,6 +143,7 @@ class TopicSubscription {
       recv: recv,
       clear: clear,
       public: public,
+      trusted: trusted,
       private: private,
       online: online,
       topic: topic,
