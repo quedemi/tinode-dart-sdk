@@ -77,7 +77,7 @@ class Topic {
   bool _subscribed = false;
 
   /// Timestamp when topic meta-desc update was received
-  late DateTime _lastDescUpdate;
+  DateTime? _lastDescUpdate;
 
   /// Last topic subscribers update timestamp
   DateTime? _lastSubsUpdate;
@@ -1135,7 +1135,7 @@ class Topic {
     });
   }
 
-  DateTime get lastDescUpdate {
+  DateTime? get lastDescUpdate {
     return _lastDescUpdate;
   }
 

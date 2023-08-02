@@ -33,10 +33,12 @@ class MetaGetBuilder {
   }
 
   /// Get latest timestamp
-  DateTime _getIms() {
-    var cupd = contact != null ? contact?.updated : null;
-    var tupd = topic.lastDescUpdate;
-    return tupd.isAfter(cupd!) ? cupd : tupd;
+  DateTime? _getIms() {
+    final cupd = contact?.updated;
+    final tupd = topic.lastDescUpdate;
+    if (tupd != null && cupd != null) {
+      return tupd.isAfter(cupd) ? cupd : tupd;
+    }
   }
 
   /// Add query parameters to fetch messages within explicit limits
