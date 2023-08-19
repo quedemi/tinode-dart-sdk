@@ -1,27 +1,26 @@
 import 'dart:convert';
 
-import 'package:rxdart/rxdart.dart';
 import 'package:get_it/get_it.dart';
-
-import 'package:tinode/src/models/packet-types.dart' as packet_types;
-import 'package:tinode/src/models/topic-names.dart' as topic_names;
-import 'package:tinode/src/services/packet-generator.dart';
-import 'package:tinode/src/models/topic-description.dart';
-import 'package:tinode/src/services/future-manager.dart';
-import 'package:tinode/src/models/server-messages.dart';
-import 'package:tinode/src/services/configuration.dart';
-import 'package:tinode/src/services/cache-manager.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:tinode/src/models/account-params.dart';
-import 'package:tinode/src/services/connection.dart';
-import 'package:tinode/src/models/packet-data.dart';
-import 'package:tinode/src/models/set-params.dart';
-import 'package:tinode/src/models/get-query.dart';
 import 'package:tinode/src/models/del-range.dart';
-import 'package:tinode/src/services/logger.dart';
+import 'package:tinode/src/models/get-query.dart';
 import 'package:tinode/src/models/message.dart';
-import 'package:tinode/src/services/tools.dart';
-import 'package:tinode/src/services/auth.dart';
+import 'package:tinode/src/models/packet-data.dart';
+import 'package:tinode/src/models/packet-types.dart' as packet_types;
 import 'package:tinode/src/models/packet.dart';
+import 'package:tinode/src/models/server-messages.dart';
+import 'package:tinode/src/models/set-params.dart';
+import 'package:tinode/src/models/topic-description.dart';
+import 'package:tinode/src/models/topic-names.dart' as topic_names;
+import 'package:tinode/src/services/auth.dart';
+import 'package:tinode/src/services/cache-manager.dart';
+import 'package:tinode/src/services/configuration.dart';
+import 'package:tinode/src/services/connection.dart';
+import 'package:tinode/src/services/future-manager.dart';
+import 'package:tinode/src/services/logger.dart';
+import 'package:tinode/src/services/packet-generator.dart';
+import 'package:tinode/src/services/tools.dart';
 import 'package:tinode/src/topic-fnd.dart';
 import 'package:tinode/src/topic-me.dart';
 import 'package:tinode/src/topic.dart';
@@ -151,7 +150,9 @@ class TinodeService {
 
     onPresMessage.add(pres);
 
-    Topic? topic = pres.topic != null ? _cacheManager.get('topic', pres.topic ?? '') : null;
+    Topic? topic = pres.topic != null
+        ? _cacheManager.get('topic', pres.topic ?? '')
+        : null;
     if (topic != null) {
       topic.routePres(pres);
     }
@@ -179,7 +180,9 @@ class TinodeService {
     var formattedPkt = pkt.toMap();
     formattedPkt['id'] = pkt.id;
     formattedPkt.keys
-        .where((k) => formattedPkt[k] == null || (formattedPkt[k] is Map && formattedPkt[k].isEmpty))
+        .where((k) =>
+            formattedPkt[k] == null ||
+            (formattedPkt[k] is Map && formattedPkt[k].isEmpty))
         .toList()
         .forEach(formattedPkt.remove);
 
@@ -190,7 +193,8 @@ class TinodeService {
     } catch (e) {
       if (pkt.id != null) {
         _loggerService.error(e.toString());
-        _futureManager.execFuture(pkt.id, _configService.appSettings.networkError, null, 'Error');
+        _futureManager.execFuture(
+            pkt.id, _configService.appSettings.networkError, null, 'Error');
       } else {
         rethrow;
       }
@@ -209,7 +213,8 @@ class TinodeService {
   }
 
   /// Create or update an account
-  Future account(String userId, String scheme, String secret, bool login, AccountParams? params) {
+  Future account(String userId, String scheme, String secret, bool login,
+      AccountParams? params) {
     Packet? packet = _packetGenerator.generate(packet_types.Acc, null);
     var data = packet.data as AccPacketData;
     data.user = userId;
@@ -232,7 +237,8 @@ class TinodeService {
   }
 
   /// Authenticate current session
-  Future<CtrlMessage> login(String scheme, String secret, Map<String, dynamic>? cred) async {
+  Future<CtrlMessage> login(
+      String scheme, String secret, Map<String, dynamic>? cred) async {
     var packet = _packetGenerator.generate(packet_types.Login, null);
     var data = packet.data as LoginPacketData;
     data.scheme = scheme;
@@ -247,7 +253,8 @@ class TinodeService {
   }
 
   /// Send a topic subscription request
-  Future subscribe(String? topicName, GetQuery getParams, SetParams? setParams) {
+  Future subscribe(
+      String? topicName, GetQuery getParams, SetParams? setParams) {
     var packet = _packetGenerator.generate(packet_types.Sub, topicName);
     var data = packet.data as SubPacketData;
 
@@ -266,7 +273,8 @@ class TinodeService {
         if (Tools.isNewGroupTopicName(topicName)) {
           // Full set.desc params are used for new topics only
           data.set?.desc = setParams.desc;
-        } else if (Tools.isP2PTopicName(topicName) && setParams.desc?.defacs != null) {
+        } else if (Tools.isP2PTopicName(topicName) &&
+            setParams.desc?.defacs != null) {
           // Use optional default permissions only.
           data.set?.desc = TopicDescription(defacs: setParams.desc?.defacs);
         }
@@ -314,7 +322,8 @@ class TinodeService {
   }
 
   String newGroupTopicName(bool isChan) {
-    return (isChan ? topic_names.TOPIC_NEW_CHAN : topic_names.TOPIC_NEW) + Tools.getNextUniqueId();
+    return (isChan ? topic_names.TOPIC_NEW_CHAN : topic_names.TOPIC_NEW) +
+        Tools.getNextUniqueId();
   }
 
   Topic newTopicWith(String peerUserId) {
@@ -414,7 +423,8 @@ class TinodeService {
 
   /// Delete credential. Always sent on 'me' topic
   Future deleteCredential(String method, String value) {
-    var packet = _packetGenerator.generate(packet_types.Del, topic_names.TOPIC_ME);
+    var packet =
+        _packetGenerator.generate(packet_types.Del, topic_names.TOPIC_ME);
     var data = packet.data as DelPacketData;
     data.what = 'cred';
     data.cred = {'meth': method, 'val': value};
@@ -433,7 +443,7 @@ class TinodeService {
   }
 
   /// Notify server that a message or messages were read or received. Does NOT return promise
-  Future note(String topicName, String what, int seq) {
+  void note(String topicName, String what, int seq) {
     if (seq <= 0 || seq >= _configService.appSettings.localSeqId) {
       throw Exception('Invalid message id ' + seq.toString());
     }
@@ -443,7 +453,7 @@ class TinodeService {
     data.what = what;
     data.seq = seq;
     packet.data = data;
-    return _send(packet);
+    _send(packet);
   }
 
   /// Broadcast a key-press notification to topic subscribers

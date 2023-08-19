@@ -1,10 +1,9 @@
 import 'package:get_it/get_it.dart';
-
-import 'package:tinode/src/models/packet-types.dart' as packet_types;
-import 'package:tinode/src/services/configuration.dart';
 import 'package:tinode/src/models/packet-data.dart';
-import 'package:tinode/src/services/tools.dart';
+import 'package:tinode/src/models/packet-types.dart' as packet_types;
 import 'package:tinode/src/models/packet.dart';
+import 'package:tinode/src/services/configuration.dart';
+import 'package:tinode/src/services/tools.dart';
 
 class PacketGenerator {
   late ConfigService _configService;
@@ -105,16 +104,18 @@ class PacketGenerator {
         break;
 
       case packet_types.Note:
-        packetData = NotePacketData(
-          topic: topicName,
-          seq: null,
-          what: null,
-        );
-        break;
+        return Packet(
+            name: type,
+            data: NotePacketData(
+              topic: topicName,
+              seq: null,
+              what: null,
+            ));
+
       default:
         packetData = null as dynamic;
     }
 
-    return Packet(type, packetData, Tools.getNextUniqueId());
+    return Packet(name: type, data: packetData, id: Tools.getNextUniqueId());
   }
 }
