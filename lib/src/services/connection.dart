@@ -70,10 +70,10 @@ class ConnectionService {
   }
 
   /// Close current websocket connection
-  void disconnect() {
+  Future<void> disconnect() async {
     _channel = null;
     _connecting = false;
-    _ws?.close(status.goingAway);
+    await _ws?.close(status.goingAway);
     onDisconnect.add(null);
   }
 

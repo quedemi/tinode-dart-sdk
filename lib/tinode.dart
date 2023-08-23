@@ -240,8 +240,8 @@ class Tinode {
   }
 
   /// Close the current connection
-  void disconnect() {
-    _connectionService.disconnect();
+  Future<void> disconnect() async {
+    await _connectionService.disconnect();
   }
 
   /// Send a network probe message to make sure the connection is alive
