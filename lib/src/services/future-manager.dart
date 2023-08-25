@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:get_it/get_it.dart';
+import 'package:tinode/src/models/exception.dart';
 import 'package:tinode/src/models/future-callback.dart';
 import 'package:tinode/src/services/configuration.dart';
 import 'package:tinode/src/services/logger.dart';
@@ -18,10 +19,8 @@ class FutureManager {
 
   Future<dynamic> makeFuture(String id) {
     var completer = Completer();
-    if (id != null) {
-      _pendingFutures[id] =
-          FutureCallback(completer: completer, ts: DateTime.now());
-    }
+    _pendingFutures[id] =
+        FutureCallback(completer: completer, ts: DateTime.now());
     return completer.future;
   }
 
@@ -34,7 +33,8 @@ class FutureManager {
         callbacks.completer?.complete(onOK);
       } else {
         callbacks.completer?.completeError(
-            Exception((errorText ?? '') + ' (' + code.toString() + ')'));
+          TinodeException(message: errorText ?? '', code: code),
+        );
       }
     }
   }

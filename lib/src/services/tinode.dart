@@ -175,7 +175,7 @@ class TinodeService {
     var future = Future<dynamic>.value(null);
 
     if (pkt.id != null) {
-      future = _futureManager.makeFuture(pkt.id ?? '');
+      future = _futureManager.makeFuture(pkt.id!);
     }
     var formattedPkt = pkt.toMap();
     formattedPkt['id'] = pkt.id;

@@ -40,6 +40,7 @@ export 'package:tinode/src/models/credential.dart';
 export 'package:tinode/src/models/def-acs.dart';
 export 'package:tinode/src/models/del-range.dart';
 export 'package:tinode/src/models/delete-transaction.dart';
+export 'package:tinode/src/models/exception.dart';
 export 'package:tinode/src/models/get-query.dart';
 export 'package:tinode/src/models/message-status.dart';
 export 'package:tinode/src/models/packet-data.dart';
