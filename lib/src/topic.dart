@@ -292,10 +292,10 @@ class Topic {
       ctrl = CtrlMessage.fromMessage(response);
     }
     resetSubscription();
-
-    _cacheManager.delete('topic', name ?? '');
-    _gone();
-
+    if (unsubscribe) {
+      _cacheManager.delete('topic', name ?? '');
+      _gone();
+    }
     return ctrl;
   }
 
