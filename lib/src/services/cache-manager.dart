@@ -1,5 +1,5 @@
-import 'package:tinode/src/models/topic-subscription.dart';
 import 'package:tinode/src/models/access-mode.dart';
+import 'package:tinode/src/models/topic-subscription.dart';
 import 'package:tinode/src/topic.dart';
 
 /// This is a data structure for user's data in cache
@@ -19,27 +19,48 @@ class CacheUser {
 
 /// Cache manager is responsible for reading and writing data into cache
 class CacheManager {
+  static const String separator = ':';
+
   /// This map holds the cached data
   final Map<String, dynamic> _cache = {};
 
   /// Put a new data into cache, if the data already exists, replace it
   void put(String type, String name, dynamic obj) {
-    _cache[type + ':' + name] = obj;
+    _cache[type + separator + name] = obj;
   }
 
   /// Get a specific data from cache using type and name
   dynamic get(String type, String name) {
-    return _cache[type + ':' + name];
+    return _cache[type + separator + name];
   }
 
   /// Delete a specific key-value from cache map
   void delete(String type, String name) {
-    _cache.remove(type + ':' + name);
+    _cache.remove(type + separator + name);
   }
 
   /// Executes a function for each element in cache, just like map method on `Map`
-  void map(MapEntry Function(String, dynamic) function) {
-    _cache.map(function);
+  Map<String, dynamic> map(
+      MapEntry<String, dynamic> Function(String, String, dynamic) function) {
+    return _cache.map((key, value) {
+      final idx = key.indexOf(separator);
+      return function(key.substring(0, idx), key.substring(idx + 1), value);
+    });
+  }
+
+  /// Executes a function for each element in cache
+  void forEach(Function(String, String, dynamic) function) {
+    _cache.forEach((key, value) {
+      final idx = key.indexOf(separator);
+      function(key.substring(0, idx), key.substring(idx + 1), value);
+    });
+  }
+
+  void removeWhere(bool Function(String, String, dynamic) function) {
+    _cache.removeWhere((key, value) {
+      final idx = key.indexOf(separator);
+      return function(key.substring(0, idx), key.substring(idx + 1), value);
+    });
   }
 
   /// This is a wrapper for `get` function which gets a user from cache by userId

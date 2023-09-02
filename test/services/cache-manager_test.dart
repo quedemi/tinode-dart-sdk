@@ -1,23 +1,23 @@
 import 'package:get_it/get_it.dart';
 import 'package:test/test.dart';
-
 import 'package:tinode/src/models/connection-options.dart';
 import 'package:tinode/src/models/topic-subscription.dart';
-import 'package:tinode/src/services/packet-generator.dart';
-import 'package:tinode/src/services/future-manager.dart';
+import 'package:tinode/src/services/auth.dart';
 import 'package:tinode/src/services/cache-manager.dart';
 import 'package:tinode/src/services/configuration.dart';
 import 'package:tinode/src/services/connection.dart';
+import 'package:tinode/src/services/future-manager.dart';
 import 'package:tinode/src/services/logger.dart';
+import 'package:tinode/src/services/packet-generator.dart';
 import 'package:tinode/src/services/tinode.dart';
-import 'package:tinode/src/services/auth.dart';
 import 'package:tinode/src/topic.dart';
 
 void main() {
   GetIt.I.registerSingleton<ConfigService>(ConfigService(false));
   GetIt.I.registerSingleton<LoggerService>(LoggerService());
   GetIt.I.registerSingleton<AuthService>(AuthService());
-  GetIt.I.registerSingleton<ConnectionService>(ConnectionService(ConnectionOptions('', '')));
+  GetIt.I.registerSingleton<ConnectionService>(
+      ConnectionService(ConnectionOptions('', '')));
   GetIt.I.registerSingleton<FutureManager>(FutureManager());
   GetIt.I.registerSingleton<PacketGenerator>(PacketGenerator());
   GetIt.I.registerSingleton<CacheManager>(CacheManager());
@@ -74,12 +74,12 @@ void main() {
     var t = Topic('cool');
     t.isSubscribed = true;
     service.putTopic(t);
-    service.map((String key, dynamic value) {
-      if (key.contains('topic:')) {
+    service.map((String type, String name, dynamic value) {
+      if (type == 'topic') {
         Topic topic = value;
         topic.resetSubscription();
       }
-      return MapEntry(key, value);
+      return MapEntry(type, value);
     });
     expect(service.get('topic', 'cool').isSubscribed, false);
   });

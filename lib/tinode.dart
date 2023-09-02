@@ -178,12 +178,11 @@ class Tinode {
   void _onConnectionDisconnect() {
     _unsubscribeAll();
     _futureManager.rejectAllFutures(0, 'disconnect');
-    _cacheManager.map((String key, dynamic value) {
-      if (key.contains('topic:')) {
+    _cacheManager.forEach((String key, String name, dynamic value) {
+      if (key == 'topic') {
         Topic topic = value;
         topic.resetSubscription();
       }
-      return MapEntry(key, value);
     });
     onDisconnect.add(null);
   }
@@ -243,6 +242,12 @@ class Tinode {
   /// Close the current connection
   Future<void> disconnect() async {
     await _connectionService.disconnect();
+  }
+
+  Future<void> reset() async {
+    await disconnect();
+    _cacheManager
+        .removeWhere((String type, String name, dynamic value) => true);
   }
 
   /// Send a network probe message to make sure the connection is alive
