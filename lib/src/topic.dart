@@ -930,7 +930,6 @@ class Topic {
   /// Called by `Tinode` when meta.sub is received or in response to received
   void processMetaSub(List<TopicSubscription> subscriptions) {
     for (var sub in subscriptions) {
-      TopicSubscription user;
       if (sub.deleted == null) {
         // If this is a change to user's own permissions, update them in topic too.
         // Desc will update 'me' topic.
@@ -941,13 +940,12 @@ class Topic {
             acs: sub.acs,
           ));
         }
-        user = _updateCachedUser(sub.user!, sub)!;
+        _updateCachedUser(sub.user!, sub);
       } else {
         _users.remove(sub.user);
-        user = sub;
       }
 
-      onMetaSub.add(user);
+      onMetaSub.add(sub);
     }
   }
 
@@ -1016,8 +1014,7 @@ class Topic {
 
   /// Update global user cache and local subscribers cache
   /// Don't call this method for non-subscribers
-  TopicSubscription? _updateCachedUser(
-      String userId, TopicSubscription object) {
+  void _updateCachedUser(String userId, TopicSubscription object) {
     var cached = _cacheManager.getUser(userId);
 
     if (cached != null) {
@@ -1041,11 +1038,9 @@ class Topic {
       _cacheManager.putUser(userId, cached);
     } else {
       _cacheManager.putUser(userId, object);
-      cached = object;
     }
 
-    _users[userId] = cached;
-    return _users[userId];
+    _users[userId] = object;
   }
 
   /// Calculate ranges of missing messages
