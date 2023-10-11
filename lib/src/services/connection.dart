@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tinode/src/models/connection-options.dart';
@@ -7,6 +5,7 @@ import 'package:tinode/src/services/logger.dart';
 import 'package:tinode/src/services/tools.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 /// This class is responsible for `ws` connection establishments
 ///
@@ -15,11 +14,8 @@ class ConnectionService {
   /// Connection configuration options provided by library user
   final ConnectionOptions _options;
 
-  /// Websocket wrapper channel based on `dart:io`
-  IOWebSocketChannel? _channel;
-
   /// Websocket connection
-  WebSocket? _ws;
+  WebSocketChannel? _ws;
 
   /// This callback will be called when connection is opened
   PublishSubject<dynamic> onOpen = PublishSubject<dynamic>();
@@ -40,8 +36,10 @@ class ConnectionService {
   }
 
   bool get isConnected {
-    return _ws != null && _ws?.readyState == WebSocket.open;
+    return _isConnected;
   }
+
+  bool _isConnected = false;
 
   /// Start opening websocket connection
   Future connect() async {
@@ -50,14 +48,18 @@ class ConnectionService {
       _loggerService.warn('Reconnecting...');
     }
     _connecting = true;
-    _ws = await WebSocket.connect(Tools.makeBaseURL(_options))
-        .timeout(Duration(milliseconds: 5000));
+    _ws = IOWebSocketChannel.connect(
+      Tools.makeBaseURL(_options),
+      connectTimeout: Duration(milliseconds: 5000),
+    );
     _connecting = false;
     _loggerService.log('Connected.');
-    _channel = IOWebSocketChannel(_ws!);
     onOpen.add('Opened');
-    _channel?.stream.listen((message) {
+    _isConnected = true;
+    _ws?.stream.listen((message) {
       onMessage.add(message);
+    }, onDone: () {
+      onDisconnect.add(null);
     });
   }
 
@@ -66,15 +68,16 @@ class ConnectionService {
     if (!isConnected || _connecting) {
       throw Exception('Tried sending data but you are not connected yet.');
     }
-    _channel?.sink.add(str);
+    _ws?.sink.add(str);
   }
 
   /// Close current websocket connection
   Future<void> disconnect() async {
-    _channel = null;
+    await _ws?.sink.close(status.goingAway);
+    await onDisconnect.first;
     _connecting = false;
-    await _ws?.close(status.goingAway);
-    onDisconnect.add(null);
+    _isConnected = false;
+    _loggerService.log('Disconnected.');
   }
 
   /// Send network probe to check if connection is indeed live
