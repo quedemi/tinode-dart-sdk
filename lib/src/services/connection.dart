@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tinode/src/models/connection-options.dart';
@@ -36,10 +38,10 @@ class ConnectionService {
   }
 
   bool get isConnected {
-    return _isConnected;
+    return _streamWebsocketSubscription != null;
   }
 
-  bool _isConnected = false;
+  StreamSubscription<dynamic>? _streamWebsocketSubscription;
 
   /// Start opening websocket connection
   Future connect() async {
@@ -55,11 +57,8 @@ class ConnectionService {
     _connecting = false;
     _loggerService.log('Connected.');
     onOpen.add('Opened');
-    _isConnected = true;
-    _ws?.stream.listen((message) {
+    _streamWebsocketSubscription = _ws?.stream.listen((message) {
       onMessage.add(message);
-    }, onDone: () {
-      onDisconnect.add(null);
     });
   }
 
@@ -74,9 +73,10 @@ class ConnectionService {
   /// Close current websocket connection
   Future<void> disconnect() async {
     await _ws?.sink.close(status.goingAway);
-    await onDisconnect.first;
+    await _streamWebsocketSubscription?.asFuture();
+    _streamWebsocketSubscription = null;
+    onDisconnect.add(null);
     _connecting = false;
-    _isConnected = false;
     _loggerService.log('Disconnected.');
   }
 
