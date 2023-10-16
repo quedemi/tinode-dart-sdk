@@ -235,7 +235,7 @@ class Tinode {
   Future connect() async {
     _doSubscriptions();
     await _connectionService.connect();
-    return hello();
+    return await hello();
   }
 
   /// Close the current connection
