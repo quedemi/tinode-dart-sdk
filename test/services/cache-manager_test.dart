@@ -13,7 +13,7 @@ import 'package:tinode/src/services/tinode.dart';
 import 'package:tinode/src/topic.dart';
 
 void main() {
-  GetIt.I.registerSingleton<ConfigService>(ConfigService(false));
+  GetIt.I.registerSingleton<ConfigService>(ConfigService());
   GetIt.I.registerSingleton<LoggerService>(LoggerService());
   GetIt.I.registerSingleton<AuthService>(AuthService());
   GetIt.I.registerSingleton<ConnectionService>(

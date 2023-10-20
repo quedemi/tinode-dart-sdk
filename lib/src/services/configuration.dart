@@ -2,22 +2,23 @@ import 'dart:io' show Platform;
 
 import 'package:tinode/src/models/app-settings.dart';
 import 'package:tinode/src/models/server-configuration.dart';
+import 'package:tinode/src/services/logger.dart';
 
 class ConfigService {
   late ServerConfiguration _serverConfiguration;
   late AppSettings _appSettings;
   String? humanLanguage;
   String? deviceToken;
-  bool? loggerEnabled;
+  Logger? logger;
   String appVersion = '';
   String appName = '';
 
-  ConfigService(bool loggerEnabled) {
+  ConfigService({Logger? logger}) {
     _appSettings = AppSettings(0xFFFFFFF, 503, 1000, 5000);
     deviceToken = null;
     appVersion = '1.0.0-alpha.2';
     humanLanguage = 'en-US';
-    this.loggerEnabled = loggerEnabled;
+    this.logger = logger;
   }
 
   AppSettings get appSettings {
@@ -29,7 +30,11 @@ class ConfigService {
   }
 
   String get userAgent {
-    return appName + ' (Dart; ' + Platform.operatingSystem + '); tinode-dart/' + appVersion;
+    return appName +
+        ' (Dart; ' +
+        Platform.operatingSystem +
+        '); tinode-dart/' +
+        appVersion;
   }
 
   String get platform {

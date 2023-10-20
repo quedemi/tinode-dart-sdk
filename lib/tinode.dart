@@ -49,6 +49,7 @@ export 'package:tinode/src/models/server-messages.dart';
 export 'package:tinode/src/models/set-params.dart';
 export 'package:tinode/src/models/topic-description.dart';
 export 'package:tinode/src/models/topic-subscription.dart';
+export 'package:tinode/src/services/logger.dart' show Logger;
 export 'package:tinode/src/services/tools.dart';
 export 'package:tinode/src/sorted-cache.dart';
 export 'package:tinode/src/topic-fnd.dart';
@@ -109,8 +110,8 @@ class Tinode {
   /// `options` connection configuration and api key
   ///
   /// `loggerEnabled` pass `true` if you want to turn the logger on
-  Tinode(String appName, ConnectionOptions options, bool loggerEnabled) {
-    _registerDependencies(options, loggerEnabled);
+  Tinode(String appName, ConnectionOptions options, {Logger? logger}) {
+    _registerDependencies(options, logger);
     _resolveDependencies();
 
     _configService.appName = appName;
@@ -118,11 +119,11 @@ class Tinode {
   }
 
   /// Register services in dependency injection container
-  void _registerDependencies(ConnectionOptions options, bool loggerEnabled) {
+  void _registerDependencies(ConnectionOptions options, Logger? logger) {
     var registered = GetIt.I.isRegistered<ConfigService>();
 
     if (!registered) {
-      GetIt.I.registerSingleton<ConfigService>(ConfigService(loggerEnabled));
+      GetIt.I.registerSingleton<ConfigService>(ConfigService(logger: logger));
       GetIt.I.registerSingleton<LoggerService>(LoggerService());
       GetIt.I.registerSingleton<AuthService>(AuthService());
       GetIt.I.registerSingleton<ConnectionService>(ConnectionService(options));
@@ -500,8 +501,8 @@ class Tinode {
   }
 
   /// Enable or disable logger service
-  void enableLogger(bool enabled) {
-    _configService.loggerEnabled = enabled;
+  void setLogger(Logger logger) {
+    _configService.logger = logger;
   }
 
   /// Set UI language to report to the server. Must be called before 'hi' is sent, otherwise it will not be used

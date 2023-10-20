@@ -1,5 +1,5 @@
-import 'package:tinode/src/services/configuration.dart';
 import 'package:get_it/get_it.dart';
+import 'package:tinode/src/services/configuration.dart';
 
 class LoggerService {
   late ConfigService _configService;
@@ -9,20 +9,25 @@ class LoggerService {
   }
 
   void error(String value) {
-    if (_configService.loggerEnabled == true) {
-      print('ERROR: ' + value);
-    }
+    _configService.logger?.onError(value);
   }
 
   void log(String value) {
-    if (_configService.loggerEnabled == true) {
-      print('LOG: ' + value);
-    }
+    _configService.logger?.onLog(value);
   }
 
   void warn(String value) {
-    if (_configService.loggerEnabled == true) {
-      print('WARN: ' + value);
-    }
+    _configService.logger?.onWarn(value);
   }
+}
+
+class Logger {
+  final void Function(String message) onError;
+  final void Function(String message) onLog;
+  final void Function(String message) onWarn;
+  Logger({
+    required this.onError,
+    required this.onLog,
+    required this.onWarn,
+  });
 }
