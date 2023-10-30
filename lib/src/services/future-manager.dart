@@ -34,6 +34,7 @@ class FutureManager {
       } else {
         callbacks.completer?.completeError(
           TinodeException(message: errorText ?? '', code: code),
+          StackTrace.current,
         );
       }
     }
